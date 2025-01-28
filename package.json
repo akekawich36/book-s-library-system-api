@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "predev": "docker-compose up -d postgres",
-    "dev": "nodemon index.js"
+    "prestart": "docker-compose up -d postgres",
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,11 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fs-extra": "^11.3.0",
+    "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
+    "path": "^0.12.7",
+    "pg": "^8.13.1",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.5"
   },
   "devDependencies": {
