@@ -2,10 +2,12 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const app = express();
-const routes = require("./routes");
 const db = require("./models");
-
 const port = process.env.PORT || 3000;
+
+const AuthRouter = require("./routes/AuthRouter");
+const SystemRouter = require("./routes/SystemRouter");
+const authMiddleware = require("./middleware/auth");
 
 app.use(helmet());
 app.use(
@@ -19,8 +21,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api", routes);
-
+app.use("/api", AuthRouter);
+app.use(authMiddleware);
+app.use("/api", SystemRouter);
 db.sequelize.sync().then(() => {
   const server = app.listen(port, () => {
     console.log(`Server running on port ${port}`);

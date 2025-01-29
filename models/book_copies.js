@@ -1,66 +1,64 @@
 module.exports = (sequelize, DataTypes) => {
-  const books = sequelize.define(
-    "books",
+  const book_copies = sequelize.define(
+    "book_copies",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      bookCode: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        unique: true,
-      },
-      title: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-      },
-      author: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-      },
-      publisher: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-      },
-      publishedDate: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      description: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-      },
-      languange: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-      },
-      pageCount: {
+      bookId: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      isActive: {
-        type: DataTypes.BOOLEAN,
+      copyNumber: {
+        type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
+      },
+      status: {
+        type: DataTypes.ENUM("new", "used", "damaged"),
+        allowNull: false,
+      },
+      isAvailable: {
+        type: DataTypes.BOOLEAN,
         defaultValue: true,
+      },
+      purchaseDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+      },
+      condition: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      location: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
       isDeleted: {
         type: DataTypes.BOOLEAN,
-        allowNull: false,
         defaultValue: false,
       },
       createdBy: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
       },
       updatedBy: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
-      tableName: "books",
+      tableName: "book_copies",
       timestamps: true,
       charset: "utf8",
       collate: "utf8_general_ci",
@@ -68,15 +66,13 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  books.associate = (models) => {
-    books.belongsTo(models.book_categories, {
+  book_copies.associate = (models) => {
+    book_copies.belongsTo(models.books, {
       foreignKey: "bookId",
-    });
-
-    books.hasMany(models.book_copies, {
-      foreignKey: "bookId",
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     });
   };
 
-  return books;
+  return book_copies;
 };

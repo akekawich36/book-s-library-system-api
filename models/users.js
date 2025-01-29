@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.TEXT,
         allowNull: false,
+        unique: true,
+        validatate: {
+          isEmail: true,
+        },
       },
       password: {
         type: DataTypes.TEXT,
@@ -27,8 +31,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(255),
         allowNull: false,
       },
-      phone: {
-        type: DataTypes.TEXT,
+      lastLoginAt: {
+        type: DataTypes.DATE,
         allowNull: true,
       },
       isActive: {
@@ -55,6 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: true,
       charset: "utf8",
       collate: "utf8_general_ci",
+      underscored: true,
     }
   );
 
