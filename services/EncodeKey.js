@@ -1,23 +1,27 @@
 var CryptoJS = require("crypto-js");
 
 const EncodeKey = (item) => {
-  let id = item;
-  if (!id) {
+  if (!item) {
     return "";
   }
-  id = CryptoJS.AES.encrypt(id.toString(), process.env.CRYPTO_KEY).toString();
-  return id;
+  const encrypted = CryptoJS.AES.encrypt(
+    item.toString(),
+    process.env.CRYPTO_KEY
+  ).toString();
+  const bufferStr = Buffer.from(encrypted).toString("base64");
+  return bufferStr;
 };
 
 const DecodeKey = (item) => {
-  let id = item;
-  if (!id) {
+  if (!item) {
     return "";
   }
-  id = CryptoJS.AES.decrypt(id, process.env.CRYPTO_KEY).toString(
-    CryptoJS.enc.Utf8
-  );
-  return id;
+  const originalEncrypted = Buffer.from(item, "base64").toString();
+  const decrypted = CryptoJS.AES.decrypt(
+    originalEncrypted,
+    process.env.CRYPTO_KEY
+  ).toString(CryptoJS.enc.Utf8);
+  return decrypted;
 };
 
 module.exports = { EncodeKey, DecodeKey };

@@ -71,6 +71,37 @@ const createCategory = async (req, res) => {
   }
 };
 
+const getCategories = async (req, res) => {
+  try {
+    const categories = await db.categories.findAll({
+      where: {
+        isDeleted: false,
+        isActive: true,
+      },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    });
+
+    const formattedCategories = categories.map((category) => ({
+      label: category.name,
+      value: services.EncodeKey(category.id),
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: formattedCategories,
+      message: "Success",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: null,
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   createCategory,
+  getCategories,
 };

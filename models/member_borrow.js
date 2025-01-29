@@ -1,37 +1,40 @@
 module.exports = (sequelize, DataTypes) => {
-  const book_copies = sequelize.define(
-    "book_copies",
+  const member_borrow = sequelize.define(
+    "member_borrow",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      bookId: {
+      memberId: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      copyNumber: {
-        type: DataTypes.STRING,
+      bookCopyId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        unique: true,
       },
-      status: {
-        type: DataTypes.ENUM("new", "used", "damaged"),
+      borrowDate: {
+        type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: "new",
       },
-      isAvailable: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
+      dueDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
       },
-      condition: {
-        type: DataTypes.STRING,
+      returnDate: {
+        type: DataTypes.DATE,
         allowNull: true,
       },
-      isDeleted: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+      status: {
+        type: DataTypes.ENUM('borrowed', 'returned', 'overdue'),
+        allowNull: false,
+        defaultValue: 'borrowed',
+      },
+      notes: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
       createdBy: {
         type: DataTypes.INTEGER,
@@ -47,7 +50,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
-      tableName: "book_copies",
+      tableName: "member_borrow",
       timestamps: true,
       charset: "utf8",
       collate: "utf8_general_ci",
@@ -55,19 +58,19 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  book_copies.associate = (models) => {
-    book_copies.belongsTo(models.books, {
-      foreignKey: "bookId",
+  member_borrow.associate = (models) => {
+    member_borrow.belongsTo(models.members, {
+      foreignKey: "memberId",
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     });
 
-    book_copies.hasMany(models.member_borrow, {
+    member_borrow.belongsTo(models.book_copies, {
       foreignKey: "bookCopyId",
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     });
   };
 
-  return book_copies;
+  return member_borrow;
 };

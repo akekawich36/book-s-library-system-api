@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   book_categories.associate = (models) => {
-    book_categories.hasMany(models.books, {
+    book_categories.belongsTo(models.books, {
       foreignKey: "bookId",
       onDelete: "CASCADE",
       onUpdate: "CASCADE",

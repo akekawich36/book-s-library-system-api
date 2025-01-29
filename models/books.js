@@ -30,11 +30,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       description: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
       languange: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: true,
       },
       pageCount: {
         type: DataTypes.INTEGER,
@@ -69,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   books.associate = (models) => {
-    books.belongsTo(models.book_categories, {
+    books.hasMany(models.book_categories, {
       foreignKey: "bookId",
     });
 
