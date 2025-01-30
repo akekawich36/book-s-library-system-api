@@ -53,6 +53,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      activeToken: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
     },
     {
       tableName: "users",
@@ -62,6 +66,12 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true,
     }
   );
+
+  users.associate = (models) => {
+    users.hasMany(models.login_logs, {
+      foreignKey: "userId",
+    });
+  };
 
   return users;
 };
