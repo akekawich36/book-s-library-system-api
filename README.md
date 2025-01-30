@@ -4,8 +4,13 @@ npm start
 
 AUTH - API
 
+    Login
     - POST /api/auth/login
+
+    Register
     - POST /api/auth/register
+    
+    Logout
     - POST /api/auth/logout
 
 MEMBER - API
@@ -37,13 +42,12 @@ BorrowBook
     For Return Book
     - POST /api/system/return
 
-
 ENV REQUIRED
 
-    - DB_HOST=localhost
+    - DB_HOST=string
     - DB_USER=string
     - DB_PASSWORD=string
-    - DB_PORT=5432
+    - DB_PORT=string
     - DB_NAME=string
     - DB_DIALECT=postgres
 
@@ -52,4 +56,4 @@ ENV REQUIRED
 
     - CRYPTO_KEY= string
 
-    - CORS_ORIGIN=http://localhost:3000
+    - CORS_ORIGIN=string
