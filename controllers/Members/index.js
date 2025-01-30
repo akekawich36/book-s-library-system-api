@@ -1,6 +1,6 @@
 const db = require("../../models");
 const { Op } = require("sequelize");
-const service = require("../../services");
+const services = require("../../services");
 
 const generateMemberCode = async () => {
   const prefix = "BLS";
@@ -78,6 +78,40 @@ const createMember = async (req, res) => {
   }
 };
 
+// ------ for TestingOnly ------
+const getDataTesting = async (req, res) => {
+  const member = await db.members.findAll({
+    attributes: ["id"],
+    where: {
+      isDeleted: false,
+      isActive: true,
+    },
+  });
+
+  const bookCopies = await db.book_copies.findAll({
+    attributes: ["id", "isAvailable", "status"],
+    where: {
+      isDeleted: false,
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    data: {
+      member: member.map((item) => services.EncodeKey(item.id)),
+      bookCopies: bookCopies.map((item) => {
+        return {
+          id: services.EncodeKey(item.id),
+          isAvailable: item.isAvailable,
+          status: item.status,
+        };
+      }),
+    },
+  });
+};
+// ------ for TestingOnly ------
+
 module.exports = {
   createMember,
+  getDataTesting,
 };

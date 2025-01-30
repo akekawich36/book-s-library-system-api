@@ -2,12 +2,13 @@ const services = require("../../services");
 const db = require("../../models");
 
 const borrowBook = async (req, res) => {
+  let t;
   try {
     const { memberId, bookCopyId } = req.body;
 
     const member = await db.members.findOne({
       where: {
-        id: memberId,
+        id: services.DecodeKey(memberId),
         isActive: true,
         isDeleted: false,
       },
@@ -44,11 +45,11 @@ const borrowBook = async (req, res) => {
       });
     }
 
+    t = await db.sequelize.transaction();
     const borrow = await db.member_borrow.create({
-      memberId,
-      bookCopyId,
+      memberId: services.DecodeKey(memberId),
+      bookCopyId: services.DecodeKey(bookCopyId),
       borrowDate: new Date(),
-      dueDate,
       status: "borrowed",
       createdBy: req.user.id,
     });
@@ -56,14 +57,19 @@ const borrowBook = async (req, res) => {
     await bookCopy.update({
       isAvailable: false,
       updatedBy: req.user.id,
+      status: "used",
     });
 
+    await t.commit();
     return res.status(200).json({
       status: true,
       message: "Book borrowed successfully",
-      data: borrow,
+      data: {
+        id: services.EncodeKey(borrow.id),
+      },
     });
   } catch (error) {
+    if (t) await t.rollback();
     return res.status(500).json({
       status: false,
       message: "Internal server error",
@@ -75,11 +81,12 @@ const borrowBook = async (req, res) => {
 const returnBook = async (req, res) => {
   let t;
   try {
-    const { borrowId, condition, status = "returned" } = req.body;
+    const { bookCopyId, condition, bookStatus } = req.body;
 
-    const borrow = await services.db.member_borrow.findOne({
+    let checkBookStatus = bookStatus == "" || !bookStatus ? "new" : bookStatus;
+    const borrow = await db.member_borrow.findOne({
       where: {
-        id: borrowId,
+        bookCopyId: services.DecodeKey(bookCopyId),
         status: "borrowed",
       },
       include: [
@@ -92,28 +99,34 @@ const returnBook = async (req, res) => {
     if (!borrow) {
       return res.status(404).json({
         status: false,
-        message: "Borrow record not found or already returned",
+        message: "Borrow record not found",
       });
     }
 
     t = await db.sequelize.transaction();
-    await borrow.update({
-      returnDate: new Date(),
-      status: status,
-      updatedBy: req.user.id,
-    });
+    await borrow.update(
+      {
+        returnDate: new Date(),
+        status: "returned",
+        updatedBy: req.user.id,
+      },
+      { transaction: t }
+    );
 
-    await borrow.book_copy.update({
-      isAvailable: true,
-      condition: condition || borrow.book_copy.condition,
-      updatedBy: req.user.id,
-    });
+    await borrow.book_copy.update(
+      {
+        isAvailable: true,
+        condition: condition || borrow.book_copy.condition,
+        status: checkBookStatus,
+        updatedBy: req.user.id,
+      },
+      { transaction: t }
+    );
+    
     await t.commit();
-
     return res.status(200).json({
       status: true,
-      message: "Book returned successfully",
-      data: borrow,
+      message: "Book has been returned",
     });
   } catch (error) {
     if (t) await t.rollback();

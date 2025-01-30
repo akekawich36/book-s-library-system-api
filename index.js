@@ -22,8 +22,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", AuthRouter);
-app.use(authMiddleware);
-app.use("/api", SystemRouter);
+app.use("/api", authMiddleware, SystemRouter);
+
 db.sequelize.sync().then(() => {
   const server = app.listen(port, () => {
     console.log(`Server running on port ${port}`);

@@ -18,6 +18,6 @@ SystemRouter.get("/system/books/:id", controller.books.getBookById);
 
 // Borrow Book
 SystemRouter.post("/system/borrow", controller.borrow.borrowBook);
-SystemRouter.put("/system/borrow/:id", controller.borrow.returnBook);
+SystemRouter.put("/system/borrow", controller.borrow.returnBook);
 
 module.exports = SystemRouter;
