@@ -34,6 +34,9 @@ SYSTEM - API
     DeleteBook
     - DELETE /api/system/books/:id
 
+    PopularBook
+    - GET /api/popularBook
+
 BorrowBook
 
     For Borrow Book

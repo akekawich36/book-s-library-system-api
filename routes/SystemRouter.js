@@ -15,6 +15,7 @@ SystemRouter.put("/system/books/:id", controller.books.updateBook);
 SystemRouter.delete("/system/books/:id", controller.books.deleteBook);
 SystemRouter.get("/system/books", controller.books.getBookList);
 SystemRouter.get("/system/books/:id", controller.books.getBookById);
+SystemRouter.get("/system/popularBook", controller.books.getPopularBook);
 
 // Borrow Book
 SystemRouter.post("/system/borrow", controller.borrow.borrowBook);

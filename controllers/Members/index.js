@@ -95,6 +95,15 @@ const getDataTesting = async (req, res) => {
     },
   });
 
+  const categories = await db.categories.findAll({
+    where: {
+      isDeleted: false,
+      isActive: true,
+    },
+    attributes: ["id", "name"],
+    order: [["name", "ASC"]],
+  });
+
   res.status(200).json({
     success: true,
     data: {
@@ -104,6 +113,12 @@ const getDataTesting = async (req, res) => {
           id: services.EncodeKey(item.id),
           isAvailable: item.isAvailable,
           status: item.status,
+        };
+      }),
+      categories: categories.map((item) => {
+        return {
+          ...item.dataValues,
+          id: services.EncodeKey(item.id),
         };
       }),
     },

@@ -269,7 +269,7 @@ const deleteBook = async (req, res) => {
 
 const getBookList = async (req, res) => {
   try {
-    const { search, page = 1, limit = 10 } = req.query;
+    const { search, page = 1, limit = 10, category } = req.query;
     const offset = (page - 1) * limit;
 
     let whereCondition = { isDeleted: false, isActive: true };
@@ -299,6 +299,11 @@ const getBookList = async (req, res) => {
             {
               model: db.categories,
               attributes: ["name"],
+              ...(category && {
+                where: {
+                  name: { [Op.iLike]: `%${category}%` },
+                },
+              }),
             },
           ],
         },
@@ -306,6 +311,7 @@ const getBookList = async (req, res) => {
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [["createdAt", "DESC"]],
+      distinct: true,
     });
 
     const totalPages = Math.ceil(books.length / limit);
@@ -356,7 +362,7 @@ const getBookById = async (req, res) => {
       include: [
         {
           model: db.book_copies,
-          attributes: ["id", "copyNumber", "isAvailable", "condition"],
+          attributes: ["id", "copyNumber", "isAvailable", "status"],
           required: false,
         },
         {
@@ -390,6 +396,12 @@ const getBookById = async (req, res) => {
       pageCount: book.pageCount,
       categories: book.book_categories.map((cat) => cat.category.name),
       bookAvailable: book.book_copies.filter((copy) => copy.isAvailable).length,
+      book_copies: book.book_copies.map((item) => {
+        return {
+          ...item.dataValues,
+          id: services.EncodeKey(item.id),
+        };
+      }),
     };
 
     res.status(200).json({
@@ -404,10 +416,50 @@ const getBookById = async (req, res) => {
   }
 };
 
+const getPopularBook = async (req, res) => {
+  try {
+    const popularBooks = await db.books.findAll({
+      attributes: [
+        "id",
+        "title",
+        "author",
+        "description",
+        [
+          db.sequelize.literal(`
+            (SELECT COUNT(*) 
+             FROM member_borrow mb 
+             JOIN book_copies bc ON mb.book_copy_id = bc.id 
+             WHERE bc.book_id = books.id)
+          `),
+          "borrowCount",
+        ],
+      ],
+      where: {
+        isDeleted: false,
+        isActive: true,
+      },
+      order: [["borrowCount", "DESC"]],
+      limit: 10,
+    });
+
+    const _popularBooks = popularBooks.map((item) => {
+      return {
+        ...item.dataValues,
+        id: services.EncodeKey(item.id),
+      };
+    });
+
+    return res.json({ message: "success", status: _popularBooks });
+  } catch (error) {
+    return res.json({ message: error.message, status: false });
+  }
+};
+
 module.exports = {
   createBook,
   updateBook,
   deleteBook,
   getBookList,
   getBookById,
+  getPopularBook,
 };

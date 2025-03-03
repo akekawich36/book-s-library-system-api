@@ -75,6 +75,8 @@ module.exports = (sequelize, DataTypes) => {
 
     books.hasMany(models.book_copies, {
       foreignKey: "bookId",
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     });
   };
 
